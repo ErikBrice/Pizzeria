@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Confirmación de Orden | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <!-- Alertas -->
+        <div class="container mt-4">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+        
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-pizza-slice fa-4x text-success mb-3"></i>
+                                <h4>¡Gracias por tu compra!</h4>
+                                <p class="lead">Tu pedido ha sido procesado correctamente.</p>
+                                <div class="border rounded p-3 mt-3 mx-auto" style="max-width: 350px; background-color: #f8f9fa;">
+                                    <h5 class="text-muted mb-2">Número de Orden:</h5>
+                                    <h3 class="fw-bold text-success" th:text="${orden.nroPedido}">PZC-00000001</h3>
+                                </div>
+                            </div>
+                                                        
+                            <h5><i class="fas fa-shopping-basket me-2"></i>Productos</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Precio</th>
+                                            <th>Cantidad</th>
+                                            <th class="text-end">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${orden.items}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img th:src="${item.pizza.imagenUrl != null ? item.pizza.imagenUrl : 'https://via.placeholder.com/50x50?text=Pizza'}" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;" alt="Pizza">
+                                                    <div>
+                                                        <span th:text="${item.pizza.nombrePizza}">Pizza Margarita</span>
+                                                        <p class="text-muted small mb-0" th:text="${item.pizza.descripcion}">Deliciosa pizza con queso y tomate</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>S/ <span th:text="${item.precioUnd}">0.00</span></td>
+                                            <td><span th:text="${item.cantidad}">1</span></td>
+                                            <td class="text-end">S/ <span th:text="${item.subtotal}">0.00</span></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <td colspan="3" class="text-end">Subtotal:</td>
+                                            <td class="text-end">S/ <span th:text="${orden.totalPago}">0.00</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end">Costo de envío:</td>
+                                            <td class="text-end">S/ <span th:text="${orden.costoEnvio}">0.00</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold">Total:</td>
+                                            <td class="text-end fw-bold">S/ <span th:text="${orden.totalPago.add(orden.costoEnvio)}">0.00</span></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            
+                            <div class="alert alert-info mb-4 alert-permanent">
+                                <h5><i class="fas fa-info-circle me-2"></i>Detalles del Pedido</h5>
+                                <p class="mb-0"><strong>ID de Pedido:</strong> <span th:text="${orden.idOrden}">#12345</span></p>
+                                <p class="mb-0"><strong>Fecha:</strong> <span th:text="${#temporals.format(orden.fechaHora, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</span></p>
+                                <p class="mb-0"><strong>Estado:</strong> <span class="badge bg-primary" th:text="${orden.estado}">Orden recibida</span></p>
+                                <p class="mb-0"><strong>Método de Pago:</strong> <span th:text="${orden.metodoPago}">Tarjeta de Crédito</span></p>
+                            </div>
+
+                            <div class="alert alert-warning alert-permanent mt-4">
+                                <h5><i class="fas fa-truck me-2"></i>Información de Entrega</h5>
+                                <p class="mb-0"><strong>Nombre:</strong> <span th:text="${orden.usuario.nombre}">Juan</span> <span th:text="${orden.usuario.apellido}">Perez</span></p>
+                                <p class="mb-0"><strong>Teléfono:</strong> <span th:text="${orden.usuario.telefono}">987654321</span></p>
+                                <p class="mb-0"><strong>Correo:</strong> <span th:text="${orden.usuario.correo}">usuario@ejemplo.com</span></p>
+                                <p class="mb-0"><strong>Dirección de entrega:</strong> <span th:text="${orden.usuario.direccion}">Calle Principal #123</span></p>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/menu}" class="btn btn-outline-success">
+                                    <i class="fas fa-pizza-slice me-2"></i>Seguir Comprando
+                                </a>
+                                <a th:href="@{/ordenes}" class="btn btn-success">
+                                    <i class="fas fa-list me-2"></i>Ver Mis Órdenes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

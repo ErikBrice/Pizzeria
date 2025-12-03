@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Cocina | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <!-- Alertas -->
+            <div th:if="${success != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Operación exitosa</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="border-bottom pb-2"><i class="fas fa-utensils"></i> Gestión de Cocina</h2>
+                    <p class="text-muted">Administra y controla las órdenes que deben ser preparadas.</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="mb-0 text-white">Órdenes pendientes</h5>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-danger" th:text="'OR: ' + ${ordenes.?[estado == 'Orden recibida'].size()}">3</span>
+                        <span class="badge bg-warning text-dark" th:text="'EP: ' + ${ordenes.?[estado == 'En preparación'].size()}">2</span>
+                        <span class="badge bg-light text-dark" th:text="'Total: ' + ${ordenes.size() + ' órdenes'}">0 órdenes</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(ordenes)}" class="text-center p-4">
+                        <i class="fas fa-pizza-slice fa-3x text-muted mb-3"></i>
+                        <p>No hay órdenes pendientes para preparar en este momento.</p>
+                    </div>
+                    <div th:unless="${#lists.isEmpty(ordenes)}" class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Productos</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="orden : ${ordenes}" th:data-orden-id="${orden.nroPedido}">
+                                    <td th:text="${orden.nroPedido}">1</td>
+                                    <td th:text="${orden.usuario.nombre + ' ' + orden.usuario.apellido}">Juan Pérez</td>
+                                    <td th:text="${#temporals.format(orden.fechaHora, 'dd-MM-yyyy HH:mm')}">01-01-2023 10:30</td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0">
+                                            <li th:each="item : ${orden.items}" th:text="${item.cantidad + ' Und. ' + item.pizza.nombrePizza}">1x Pizza Hawaiana</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${
+                                            orden.estado == 'Orden recibida' ? 'bg-danger text-white' :
+                                            (orden.estado == 'En preparación' ? 'bg-warning text-dark' :
+                                            (orden.estado == 'Preparado' ? 'bg-success' : 'bg-secondary'))
+                                        }" th:text="${orden.estado}">Estado</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a th:href="@{/cocina/{id}(id=${orden.idOrden})}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </a>
+                                            <form th:if="${orden.estado == 'Orden recibida'}" th:action="@{/cocina/actualizar-estado}" method="post" class="ms-1">
+                                                <input type="hidden" name="idOrden" th:value="${orden.idOrden}">
+                                                <input type="hidden" name="estado" value="En preparación">
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-utensils"></i> Preparar
+                                                </button>
+                                            </form>
+                                            <form th:if="${orden.estado == 'En preparación'}" th:action="@{/cocina/actualizar-estado}" method="post" class="ms-1">
+                                                <input type="hidden" name="idOrden" th:value="${orden.idOrden}">
+                                                <input type="hidden" name="estado" value="Preparado">
+                                                <button type="submit" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-check"></i> Finalizar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

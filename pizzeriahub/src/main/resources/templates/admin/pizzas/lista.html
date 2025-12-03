@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Listado de Pizzas | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <!-- Alertas -->
+            <div th:if="${success != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Operación exitosa</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="border-bottom pb-2">Administración de Pizzas</h2>
+                        <a th:href="@{/admin}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver al Panel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-pizza-slice me-2"></i> Listado de Pizzas</h5>
+                            <a th:href="@{/admin/pizzas/nuevo}" class="btn btn-light">
+                                <i class="fas fa-plus me-1"></i> Nueva Pizza
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(pizzas)}" class="alert alert-info">
+                                <p class="mb-0">No hay pizzas registradas en el sistema.</p>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-search"></i>
+                                                </span>
+                                                <input type="text" id="searchInput" class="form-control"
+                                                       placeholder="Buscar por nombre...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:unless="${#lists.isEmpty(pizzas)}" class="table-responsive">
+                                <table class="table table-hover" id="tablaProductos">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Imagen</th>
+                                            <th>Nombre</th>
+                                            <th>Descripción</th>
+                                            <th>Precio</th>
+                                            <th>Stock</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="pizza : ${pizzas}">
+                                            <td th:text="${pizza.idPizza}">1</td>
+                                            <td>
+                                                <img th:src="${pizza.imagenUrl != null ? pizza.imagenUrl : 'https://via.placeholder.com/50x50?text=Pizza'}"
+                                                     alt="Pizza" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                            </td>
+                                            <td th:text="${pizza.nombrePizza}">Nombre de la Pizza</td>
+                                            <td>
+                                                <span th:text="${#strings.length(pizza.descripcion) > 50 ? #strings.substring(pizza.descripcion, 0, 50) + '...' : pizza.descripcion}">
+                                                    Descripción de la pizza
+                                                </span>
+                                            </td>
+                                            <td>S/ <span th:text="${pizza.precioUnd}">0.00</span></td>
+                                            <td>
+                                                <span th:if="${pizza.stock > 10}" class="badge bg-success" th:text="${pizza.stock}">20</span>
+                                                <span th:if="${pizza.stock <= 10 && pizza.stock > 0}" class="badge bg-warning text-dark" th:text="${pizza.stock}">5</span>
+                                                <span th:if="${pizza.stock <= 0}" class="badge bg-danger" th:text="${pizza.stock}">0</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <form th:action="@{/admin/pizzas/cambiar-estado/{id}(id=${pizza.idPizza})}" method="post" class="me-2">
+                                                        <input type="hidden" name="_method" value="patch" />
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input"
+                                                                   type="checkbox"
+                                                                   th:checked="${pizza.activo}"
+                                                                   onchange="this.form.submit()">
+                                                        </div>
+                                                    </form>
+
+                                                    <div class="btn-group">
+                                                        <a class="btn btn-sm btn-outline-secondary"
+                                                           data-toggle="tooltip" data-placement="bottom" title="Editar producto"
+                                                           th:href="@{/admin/pizzas/editar/{id}(id=${pizza.idPizza})}">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger ms-1"
+                                                                data-bs-toggle="modal"
+                                                                data-toggle="tooltip" data-placement="bottom" title="Eliminar producto"
+                                                                th:data-bs-target="'#eliminarPizzaModal' + ${pizza.idPizza}">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+
+                                                        <!-- Modal de confirmación para eliminar pizza -->
+                                                        <div class="modal fade" th:id="'eliminarPizzaModal' + ${pizza.idPizza}" tabindex="-1">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Confirmar eliminación</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        ¿Estás seguro de que deseas eliminar el producto
+                                                                        <strong th:text="${pizza.nombrePizza}">NombrePizza</strong>?
+                                                                        Esta acción no se puede deshacer.
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                        <form th:action="@{/admin/pizzas/eliminar/{id}(id=${pizza.idPizza})}" method="post">
+                                                                            <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts específicos -->
+    <th:block layout:fragment="scripts">
+        <!-- Script para el filtrado de la tabla -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('searchInput');
+                const table = document.getElementById('tablaProductos');
+                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+                searchInput.addEventListener('keyup', function() {
+                    const searchTerm = this.value.toLowerCase();
+
+                    for (let i = 0; i < rows.length; i++) {
+                        const row = rows[i];
+                        const cells = row.getElementsByTagName('td');
+
+                        // Buscar en nombre (índice 2)
+                        const cellText = cells[2].textContent.toLowerCase();
+                        const found = cellText.includes(searchTerm);
+
+                        // Mostrar u ocultar la fila según si se encontró el término
+                        row.style.display = found ? '' : 'none';
+                    }
+                });
+            });
+        </script>
+    </th:block>
+
+</body>
+</html>

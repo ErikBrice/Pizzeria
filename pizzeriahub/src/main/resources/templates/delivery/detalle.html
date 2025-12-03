@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Detalle de Entrega | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="border-bottom pb-2 mb-4">Detalle de Entrega #<span th:text="${orden.nroPedido}">123</span></h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/delivery}">Entregas</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Detalle #<span th:text="${orden.nroPedido}">123</span></li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Información del Pedido</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>ID del Pedido:</strong> <span th:text="${orden.nroPedido}">123</span></p>
+                                    <p class="mb-1"><strong>Estado:</strong> <span class="badge" th:classappend="${
+                                            orden.estado == 'Preparado' ? 'bg-danger text-white' :
+                                            (orden.estado == 'En entrega' ? 'bg-warning text-dark' :
+                                            (orden.estado == 'Entregado' ? 'bg-success' : 'bg-secondary'))
+                                    }" th:text="${orden.estado}">Estado</span></p>
+                                    <p class="mb-1"><strong>Fecha de Pedido:</strong> <span th:text="${#temporals.format(orden.fechaHora, 'dd-MM-yyyy HH:mm')}">01-01-2023 12:30</span></p>
+                                    <p class="mb-1"><strong>Total:</strong> S/ <span th:text="${orden.totalPago.add(orden.costoEnvio)}">0.00</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Cliente:</strong> <span th:text="${orden.usuario.nombre + ' ' + orden.usuario.apellido}">Juan Pérez</span></p>
+                                    <p class="mb-1"><strong>Correo:</strong> <span th:text="${orden.usuario.correo}">juan@example.com</span></p>
+                                    <p class="mb-1"><strong>Teléfono:</strong> <span th:text="${orden.usuario.telefono}">987654321</span></p>
+                                    <p class="mb-1"><strong>Método de Pago:</strong> <span th:text="${orden.metodoPago}">Tarjeta</span></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="mb-3">
+                                <h6>Dirección de Entrega:</h6>
+                                <p class="mb-0" th:text="${orden.usuario.direccion}">Av. Principal 123, Miraflores, Lima</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Productos</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Producto</th>
+                                            <th scope="col" class="text-center">Cantidad</th>
+                                            <th scope="col" class="text-end">Precio</th>
+                                            <th scope="col" class="text-end">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${orden.items}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img th:src="${item.pizza.imagenUrl != null ? item.pizza.imagenUrl : 'https://via.placeholder.com/50'}"
+                                                         class="me-2" alt="Pizza" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                                    <div>
+                                                        <p class="mb-0 fw-bold" th:text="${item.pizza.nombrePizza}">Pepperoni</p>
+                                                        <small class="text-muted" th:text="${item.pizza.descripcion}">Descripción de la pizza</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle" th:text="${item.cantidad}">2</td>
+                                            <td class="text-end align-middle">S/ <span th:text="${item.precioUnd}">0.00</span></td>
+                                            <td class="text-end align-middle">S/ <span th:text="${item.subtotal}">0.00</span></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <td colspan="3" class="text-end">Subtotal:</td>
+                                            <td class="text-end">S/ <span th:text="${orden.totalPago}">0.00</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end">Costo de envío:</td>
+                                            <td class="text-end">S/ <span th:text="${orden.costoEnvio}">0.00</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold">Total:</td>
+                                            <td class="text-end fw-bold">S/ <span th:text="${orden.totalPago.add(orden.costoEnvio)}">0.00</span></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Estado de la Entrega</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div>
+                                        <span class="fw-bold">Motorizado:</span>
+                                        <span th:text="${orden.motorizado?.nombreCompleto} ?: 'Sin asignar'"
+                                              th:class="${orden.motorizado == null} ? 'text-danger' : 'text-success'">
+                                            Motorizado</span>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">Estado Actual:</span>
+                                        <span class="badge" th:classappend="${
+                                                orden.estado == 'Preparado' ? 'bg-danger text-white' :
+                                                (orden.estado == 'En entrega' ? 'bg-warning text-dark' :
+                                                (orden.estado == 'Entregado' ? 'bg-success' : 'bg-secondary'))
+                                            }" th:text="${orden.estado}">Estado</span>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" role="progressbar"
+                                         th:style="${orden.estado == 'Preparado' ? 'width: 50%' : (orden.estado == 'Entregado' ? 'width: 100%' : 'width: 75%')}"
+                                         aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <form th:action="@{/delivery/actualizar-estado}" method="post" class="mb-3">
+                                <input type="hidden" name="idOrden" th:value="${orden.idOrden}">
+                                <div class="mb-3">
+                                    <label for="estado" class="form-label">Cambiar Estado:</label>
+                                    <select class="form-select" id="estado" name="estado">
+                                        <option value="En entrega" th:selected="${orden.estado == 'En entrega'}">En Entrega</option>
+                                        <option value="Entregado" th:selected="${orden.estado == 'Entregado'}">Entregado</option>
+                                    </select>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-warning"><i class="fas fa-rotate-right"></i> Actualizar Estado</button>
+                                </div>
+                            </form>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <h6>Historial de Estados:</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <span class="fw-bold">Pedido Realizado</span>
+                                            <br>
+                                            <small class="text-muted" th:text="${#temporals.format(orden.fechaHora, 'dd-MM-yyyy HH:mm')}">01-01-2023 12:30</small>
+                                        </div>
+                                        <span class="badge bg-success rounded-pill">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <span class="fw-bold">Preparado</span>
+                                            <br>
+                                            <small class="text-muted" th:text="${#temporals.format(orden.fechaActualizacion, 'dd-MM-yyyy HH:mm')}">01-01-2023 13:00</small>
+                                        </div>
+                                        <span class="badge bg-success rounded-pill">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <span class="fw-bold">En Entrega</span>
+                                            <br>
+                                            <small class="text-muted" th:text="${#temporals.format(orden.fechaActualizacion, 'dd-MM-yyyy HH:mm')}">01-01-2023 13:15</small>
+                                        </div>
+                                        <span th:class="${orden.estado == 'En entrega' || orden.estado == 'Entregado' ? 'badge bg-success rounded-pill' : 'badge bg-secondary rounded-pill'}">
+                                            <i th:class="${orden.estado == 'En entrega' || orden.estado == 'Entregado' ? 'fas fa-check' : 'fas fa-clock'}"></i>
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <span class="fw-bold">Entregado</span>
+                                            <br>
+                                            <small class="text-muted" th:text="${orden.estado == 'Entregado' ? #temporals.format(orden.fechaEntrega, 'dd-MM-yyyy HH:mm') : 'Pendiente'}">Pendiente</small>
+                                        </div>
+                                        <span th:class="${orden.estado == 'Entregado' ? 'badge bg-success rounded-pill' : 'badge bg-secondary rounded-pill'}">
+                                            <i th:class="${orden.estado == 'Entregado' ? 'fas fa-check' : 'fas fa-clock'}"></i>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Acciones</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/delivery}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Volver a Entregas
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                                    <i class="fas fa-print me-2"></i>Imprimir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

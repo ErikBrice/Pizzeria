@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Menú | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content" class="container py-4">
+        <!-- Mensajes de alerta -->
+        <div th:if="${success != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <!-- Contenido de la página de menú -->
+        <h2 class="border-bottom pb-2 my-4"><i class="fas fa-pizza-slice"></i> Nuestro Menú</h2>
+        
+        <div class="row">
+            <div class="my-4">
+                <div class="row row-cols-1 row-cols-md-4 row-cols-lg-4 g-4 custom-cols">
+                    <div class="col" th:each="pizza : ${pizzas}">
+                        <div class="card h-100 shadow-sm">
+                            <img th:src="${pizza.imagenUrl != null ? pizza.imagenUrl : 'https://via.placeholder.com/300x200?text=Pizza'}" 
+                                class="card-img-top" alt="Pizza" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${pizza.nombrePizza}">Nombre de la Pizza</h5>
+                                <p class="card-text" th:text="${pizza.descripcion}">Descripción de la pizza.</p>
+                                <p class="fw-bold">
+                                    S/ <span th:text="${pizza.precioUnd}">0.00</span>
+                                    <span th:if="${pizza.stock > 0}" class="badge bg-secondary">Disponible - <span th:text="${pizza.stock}">0</span> Und.</span>
+                                    <span th:if="${pizza.stock <= 0}" class="badge bg-danger">Agotado</span>
+                                </p>
+                                <div class="d-flex justify-content-between">
+                                    <button th:if="${pizza.stock > 0}" 
+                                            class="btn btn-warning add-to-cart btn-product-menu"
+                                            th:data-id="${pizza.idPizza}"
+                                            th:data-auth="${#authorization.expression('isAuthenticated()')}">
+                                        <i class="fas fa-cart-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Si no hay pizzas -->
+                <div th:if="${pizzas.isEmpty()}" class="alert alert-info text-center p-5">
+                    <i class="fas fa-pizza-slice fa-3x mb-3"></i>
+                    <h4>No hay pizzas disponibles en este momento</h4>
+                    <p>Intente más tarde o contacte con nosotros para más información.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

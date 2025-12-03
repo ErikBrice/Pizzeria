@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Detalle de Pedido | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <!-- Alertas -->
+            <div th:if="${success != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Operación exitosa</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Navegación de regreso -->
+            <div class="mb-4">
+                <a th:href="@{/ordenes}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Volver a mis órdenes
+                </a>
+            </div>
+
+            <div class="row" th:if="${orden != null}">
+                <!-- Información de la orden -->
+                <div class="col-lg-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-receipt me-2"></i>Orden #<span th:text="${orden.idOrden}">123</span>
+                                </h5>
+                                <span th:switch="${orden.estado}" class="badge fs-6">
+                                    <span th:case="'Orden recibida'" class="badge bg-info text-dark">
+                                        <i class="fas fa-clock me-1"></i> Orden recibida
+                                    </span>
+                                    <span th:case="'En preparación'" class="badge bg-primary">
+                                        <i class="fas fa-fire me-1"></i> En preparación
+                                    </span>
+                                    <span th:case="'Preparado'" class="badge bg-warning text-dark">
+                                        <i class="fas fa-check-circle me-1"></i> Preparado
+                                    </span>
+                                    <span th:case="'En entrega'" class="badge bg-info">
+                                        <i class="fas fa-truck me-1"></i> En entrega
+                                    </span>
+                                    <span th:case="'Entregado'" class="badge bg-success">
+                                        <i class="fas fa-check-double me-1"></i> Entregado
+                                    </span>
+                                    <span th:case="'Cancelado'" class="badge bg-danger">
+                                        <i class="fas fa-times me-1"></i> Cancelado
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <div class="border rounded p-2 d-inline-block">
+                                    <h6 class="text-muted mb-1">Número de Orden:</h6>
+                                    <h5 class="fw-bold mb-0" th:text="${orden.nroPedido}">PZC-00000001</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Información de la Orden</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Fecha:</strong> <span th:text="${#temporals.format(orden.fechaHora, 'dd-MM-yyyy HH:mm')}">01-01-2023 10:30</span></li>
+                                        <li><strong>Método de pago:</strong> <span th:text="${orden.metodoPago}">Tarjeta</span></li>
+                                        <li th:if="${orden.estado == 'Cancelado'}">
+                                            <strong>Fecha de cancelación:</strong> <span th:text="${#temporals.format(orden.fechaActualizacion, 'dd-MM-yyyy HH:mm')}">01-01-2023 11:30</span>
+                                        </li>
+                                        <li th:if="${orden.estado == 'Entregado'}">
+                                            <strong>Fecha de entrega:</strong> <span th:text="${#temporals.format(orden.fechaActualizacion, 'dd-MM-yyyy HH:mm')}">01-01-2023 12:30</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Datos de Entrega</h6>
+                                    <address>
+                                        <span th:text="${orden.usuario.nombre + ' ' + orden.usuario.apellido}">Nombre cliente</span><br>
+                                        <span th:text="${orden.usuario.direccion}">Dirección de entrega predeterminada</span><br>
+                                        <span th:text="${orden.usuario.telefono}">987654321</span><br>
+                                        <span th:text="${orden.usuario.correo}">cliente@example.com</span>
+                                    </address>
+                                </div>
+                            </div>
+
+                            <h6 class="mt-4 border-bottom pb-2">Productos</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Precio</th>
+                                            <th>Cantidad</th>
+                                            <th class="text-end">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${orden.items}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img th:src="${item.pizza.imagenUrl != null ? item.pizza.imagenUrl : 'https://via.placeholder.com/50x50?text=Pizza'}" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;" alt="Pizza">
+                                                    <div>
+                                                        <div th:text="${item.pizza.nombrePizza}">Pizza Margarita</div>
+                                                        <small class="text-muted" th:text="${item.pizza.descripcion}">Salsa de tomate, queso mozzarella, albahaca</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>S/ <span th:text="${item.precioUnd}">0.00</span></td>
+                                            <td><span th:text="${item.cantidad}">1</span></td>
+                                            <td class="text-end">S/ <span th:text="${item.subtotal}">0.00</span></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <td colspan="3" class="text-end">Subtotal:</td>
+                                            <td class="text-end">S/ <span th:text="${orden.totalPago}">0.00</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end">Costo de envío:</td>
+                                            <td class="text-end">S/ <span th:text="${orden.costoEnvio}">0.00</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold">Total:</td>
+                                            <td class="text-end fw-bold">S/ <span th:text="${orden.totalPago.add(orden.costoEnvio)}">0.00</span></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            
+                            <!-- Botón de cancelar para pedidos nuevos -->
+                            <div class="mt-4 text-center" th:if="${orden.estado == 'Orden recibida'}">
+                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelarModal">
+                                    <i class="fas fa-times me-1"></i> Cancelar Orden
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estado de la orden -->
+                <div class="col-lg-4">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Seguimiento de Orden</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="position-relative">
+                                <ul class="timeline timeline-vertical">
+                                    <li class="timeline-item" th:classappend="${orden.estado != 'Cancelado' ? 'active' : ''}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">Orden recibida</h6>
+                                            <p class="mb-0 text-muted small" th:text="${#temporals.format(orden.fechaHora, 'dd-MM-yyyy HH:mm')}">01-01-2023 10:30</p>
+                                        </div>
+                                    </li>
+                                    
+                                    <li class="timeline-item" th:classappend="${orden.estado == 'En preparación' || orden.estado == 'Preparado' || orden.estado == 'En entrega' || orden.estado == 'Entregado' ? 'active' : ''}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">En preparación</h6>
+                                            <p class="mb-0 text-muted small">Tu orden está siendo preparada</p>
+                                        </div>
+                                    </li>
+                                    
+                                    <li class="timeline-item" th:classappend="${orden.estado == 'Preparado' || orden.estado == 'En entrega' || orden.estado == 'Entregado' ? 'active' : ''}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">Preparado</h6>
+                                            <p class="mb-0 text-muted small">Tu orden está lista para ser enviada</p>
+                                        </div>
+                                    </li>
+                                    
+                                    <li class="timeline-item" th:classappend="${orden.estado == 'En entrega' || orden.estado == 'Entregado' ? 'active' : ''}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">En entrega</h6>
+                                            <p class="mb-0 text-muted small">Tu orden está en camino</p>
+                                        </div>
+                                    </li>
+                                    
+                                    <li class="timeline-item" th:classappend="${orden.estado == 'Entregado' ? 'active' : ''}">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">Entregado</h6>
+                                            <p class="mb-0 text-muted small" th:if="${orden.estado == 'Entregado'}" th:text="${#temporals.format(orden.fechaActualizacion, 'dd-MM-yyyy HH:mm')}">01-01-2023 12:30</p>
+                                            <p class="mb-0 text-muted small" th:unless="${orden.estado == 'Entregado'}">Pendiente</p>
+                                        </div>
+                                    </li>
+                                    
+                                    <li class="timeline-item" th:if="${orden.estado == 'Cancelado'}">
+                                        <div class="timeline-marker bg-danger"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1 text-danger">Cancelado</h6>
+                                            <p class="mb-0 text-muted small" th:text="${#temporals.format(orden.fechaActualizacion, 'dd-MM-yyyy HH:mm')}">01-01-2023 11:30</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sugerencia de nuevos pedidos -->
+                    <div class="card shadow-sm" th:if="${orden.estado != null}">
+                        <div class="card-body text-center">
+                            <h5 class="mb-3">¿Quieres hacer un nuevo pedido?</h5>
+                            <a th:href="@{/menu}" class="btn btn-secondary">
+                                <i class="fas fa-pizza-slice me-1"></i> Ver Menú
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mensaje de error si no existe la orden -->
+            <div class="alert alert-danger" th:if="${orden == null}">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Lo sentimos, la orden solicitada no existe o no tienes permiso para verla.
+                <a th:href="@{/ordenes}" class="alert-link">Volver a mis órdenes</a>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación de cancelación (movido fuera del contenedor principal) -->
+        <div class="modal fade" id="cancelarModal" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar cancelación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-start">
+                        ¿Estás seguro de que deseas cancelar la orden #<span th:text="${orden.nroPedido}"></span>?
+                        Esta acción no se puede deshacer.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <form th:action="@{/ordenes/{id}/cancelar(id=${orden.idOrden})}" method="post">
+                            <button type="submit" class="btn btn-danger">Confirmar cancelación</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

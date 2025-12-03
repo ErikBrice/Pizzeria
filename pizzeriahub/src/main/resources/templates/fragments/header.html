@@ -1,0 +1,83 @@
+<!-- Fragment del Header/Navbar -->
+<header th:fragment="header" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <nav class="navbar navbar-expand-lg main-navbar">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/images/logo.png}" alt="La Pizzería" class="img-fluid logo" width="180" height="60" sec:authorize="!isAuthenticated() or hasRole('ROLE_CLIENTE')">
+                <img th:src="@{/images/logo_workers.png}" alt="La Pizzería" class="img-fluid logo" width="180" height="60" sec:authorize="isAuthenticated() and !hasRole('ROLE_CLIENTE')">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/menu}">Menú</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <!-- Carrito de compras -->
+                    <li class="nav-item" sec:authorize="isAuthenticated() and hasRole('ROLE_CLIENTE')">
+                        <a class="nav-link d-flex align-items-center" th:href="@{/carrito}">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="d-none d-lg-inline-block ms-1">Carrito</span>
+                            <span class="badge cart-counter" th:text="${carrito?.itemCount ?: 0}">0</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Usuario no autenticado -->
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/login}">Iniciar Sesión</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/registro}">Registrarse</a>
+                    </li>
+                    
+                    <!-- Usuario autenticado -->
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" th:href="@{/perfil}">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="d-none d-lg-inline-block ms-1">Mi Perfil</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated() and hasRole('ROLE_CLIENTE')">
+                        <a class="nav-link" th:href="@{/ordenes}">
+                            <i class="fas fa-list"></i>
+                            <span class="d-none d-lg-inline-block ms-1">Mis Órdenes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN') or hasRole('COCINA')">
+                        <a class="nav-link" th:href="@{/cocina}">
+                            <i class="fas fa-utensils"></i>
+                            <span class="d-none d-lg-inline-block ms-1">Cocina</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN') or hasRole('DELIVERY') or hasRole('MOTORIZADO')">
+                        <a class="nav-link" th:href="@{/delivery}">
+                            <i class="fas fa-motorcycle"></i>
+                            <span class="d-none d-lg-inline-block ms-1">Delivery</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/admin}">
+                            <i class="fas fa-cog"></i>
+                            <span class="d-none d-lg-inline-block ms-1">Panel Admin</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn nav-link">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span class="d-none d-lg-inline-block ms-1">Cerrar Sesión</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

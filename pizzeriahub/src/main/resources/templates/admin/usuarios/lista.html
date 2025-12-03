@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Gestión de Usuarios | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <!-- Alertas -->
+            <div th:if="${success != null}"
+                 class="alert alert-success alert-dismissible fade show"
+                 th:classappend="${success.contains('¡Contraseña reseteada!')} ? 'alert-permanent' : ''"
+                 role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Operación exitosa</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="border-bottom pb-2">Administración de Usuarios</h2>
+                        <a th:href="@{/admin}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver al Panel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i> Listado de Usuarios</h5>
+                            <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-light">
+                                <i class="fas fa-user-plus"></i> Nuevo Usuario
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(usuarios)}" class="alert alert-info">
+                                <p class="mb-0">No hay usuarios registrados en el sistema.</p>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-search"></i>
+                                                </span>
+                                                <input type="text" id="searchInput" class="form-control" 
+                                                       placeholder="Buscar por nombre, apellido, correo, rol...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:unless="${#lists.isEmpty(usuarios)}" class="table-responsive">
+                                <table class="table table-hover" id="tablaUsuarios">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th>Apellido</th>
+                                            <th>Correo</th>
+                                            <th>Teléfono</th>
+                                            <th>Rol</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="usuario : ${usuarios}">
+                                            <td th:text="${usuario.idUsuario}"></td>
+                                            <td th:text="${usuario.nombre}"></td>
+                                            <td th:text="${usuario.apellido}"></td>
+                                            <td th:text="${usuario.correo}"></td>
+                                            <td th:text="${usuario.telefono}"></td>
+                                            <td>
+                                                <span class="badge"
+                                                      th:classappend="${usuario.rol.nombreRol == 'CLIENTE' ? 'bg-success' : 'bg-warning text-dark'}"
+                                                      th:text="${usuario.rol.nombreRol}">Rol
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="btn-group">
+                                                        <div class="me-1">
+                                                            <a class="btn btn-sm btn-outline-secondary"
+                                                               th:classappend="${#strings.startsWith(usuario.nombre, 'Usuario_eliminado_')} ? 'disabled' : ''"
+                                                               data-toggle="tooltip" data-placement="bottom" title="Editar usuario"
+                                                               th:href="@{/admin/usuarios/editar/{id}(id=${usuario.idUsuario})}">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                        </div>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                th:classappend="${#strings.startsWith(usuario.nombre, 'Usuario_eliminado_')} ? 'disabled' : ''"
+                                                                data-bs-toggle="modal"
+                                                                data-toggle="tooltip" data-placement="bottom" title="Resetear contraseña"
+                                                                th:data-bs-target="'#resetearPasswordModal' + ${usuario.idUsuario}">
+                                                            <i class="fas fa-key"></i>
+                                                        </button>
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-outline-danger ms-1"
+                                                                th:classappend="${#strings.startsWith(usuario.nombre, 'Usuario_eliminado_')} ? 'disabled' : ''"
+                                                                data-bs-toggle="modal"
+                                                                data-toggle="tooltip" data-placement="bottom" title="Eliminar usuario"
+                                                                th:data-bs-target="'#eliminarUsuarioModal' + ${usuario.idUsuario}">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+
+                                                        <!-- Modal de confirmación para resetear contraseña -->
+                                                        <div class="modal fade" th:id="'resetearPasswordModal' + ${usuario.idUsuario}" tabindex="-1">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Confirmar reseteo de contraseña</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        ¿Estás seguro de que deseas resetear la contraseña del usuario
+                                                                        <strong th:text="${usuario.nombreCompleto}">Nombre Apellido</strong>?
+                                                                        Esta acción generará una nueva contraseña aleatoria. Deberás brindársela al usuario.
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                        <form th:action="@{/admin/usuarios/resetear-password/{id}(id=${usuario.idUsuario})}" method="post">
+                                                                            <button type="submit" class="btn btn-danger">Confirmar reseteo</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Modal de eliminación de cuenta de usuario -->
+                                                        <div class="modal fade" th:id="'eliminarUsuarioModal' + ${usuario.idUsuario}" tabindex="-1">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Confirmar eliminación de cuenta</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        ¿Estás seguro de que deseas eliminar la cuenta del usuario
+                                                                        <strong th:text="${usuario.nombreCompleto}">Nombre Apellido</strong>?
+                                                                        Esta acción no se puede deshacer.
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                        <form th:action="@{/admin/usuarios/eliminar/{id}(id=${usuario.idUsuario})}" method="post">
+                                                                            <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts específicos -->
+    <th:block layout:fragment="scripts">
+        <!-- Script para el filtrado de la tabla -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('searchInput');
+                const table = document.getElementById('tablaUsuarios');
+                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+                searchInput.addEventListener('keyup', function() {
+                    const searchTerm = this.value.toLowerCase();
+
+                    for (let i = 0; i < rows.length; i++) {
+                        const row = rows[i];
+                        const cells = row.getElementsByTagName('td');
+                        let found = false;
+
+                        // Buscar en nombre, apellido, correo y rol (columnas 1, 2, 3 y 5)
+                        for (let j = 1; j <= 5; j++) {
+                            const cellText = cells[j].textContent.toLowerCase();
+                            if (cellText.includes(searchTerm)) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        // Mostrar u ocultar la fila según si se encontró el término
+                        row.style.display = found ? '' : 'none';
+                    }
+                });
+            });
+        </script>
+    </th:block>
+
+</body>
+</html>

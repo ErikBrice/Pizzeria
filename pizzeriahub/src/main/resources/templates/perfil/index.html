@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Mi Perfil | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content" class="container my-5">
+        <div class="row">
+            <!-- Sidebar de navegación -->
+            <div class="col-md-3 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-user-circle fa-4x text-secondary"></i>
+                            <h5 class="mt-2" th:text="${usuario.nombreCompleto}">Nombre cliente</h5>
+                            <p class="text-muted" th:text="${usuario.correo}">email@ejemplo.com</p>
+                        </div>
+                        <hr>
+                        <div class="nav flex-column nav-pills">
+                            <a class="nav-link active mb-2" data-bs-toggle="pill" href="#v-pills-perfil">
+                                <i class="fas fa-user me-2"></i> Información Personal
+                            </a>
+                            <a class="nav-link mb-2" data-bs-toggle="pill" href="#v-pills-password">
+                                <i class="fas fa-key me-2"></i> Cambiar Contraseña
+                            </a>
+                            <a class="nav-link mb-2" data-bs-toggle="pill" href="#v-pills-eliminar">
+                                <i class="fas fa-trash me-2"></i> Eliminar Cuenta
+                            </a>
+                            <a class="nav-link mb-2" th:href="@{/ordenes}" sec:authorize="hasRole('ROLE_CLIENTE')">
+                                <i class="fas fa-list me-2"></i> Historial de Órdenes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido principal -->
+            <div class="col-md-9">
+                <!-- Alertas -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Contenido de las pestañas -->
+                <div class="tab-content">
+                    <!-- Información Personal -->
+                    <div class="tab-pane fade show active" id="v-pills-perfil">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user-edit me-2"></i>Editar Información Personal
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{/perfil/actualizar}" method="post" th:object="${usuario}">
+                                    <div class="mb-3">
+                                        <label for="nombre" class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="apellido" class="form-label">Apellido</label>
+                                        <input type="text" class="form-control" id="apellido" th:field="*{apellido}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="correo" class="form-label">Correo Electrónico</label>
+                                        <input type="email" class="form-control" id="correo" th:field="*{correo}" required readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="telefono" class="form-label">Teléfono</label>
+                                        <input type="tel"
+                                               class="form-control"
+                                               id="telefono"
+                                               name="telefono"
+                                               pattern="[0-9]{7,9}"
+                                               maxlength="9"
+                                               th:field="*{telefono}" required>
+                                        <div class="invalid-feedback">
+                                            Por favor ingrese un número de teléfono válido.
+                                        </div>
+                                        <div class="text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="direccion" class="form-label">Dirección</label>
+                                        <input type="text" class="form-control" id="direccion" th:field="*{direccion}" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-2"></i>Guardar Cambios
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cambiar Contraseña -->
+                    <div class="tab-pane fade" id="v-pills-password">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{/perfil/cambiar-password}" method="post">
+                                    <div class="mb-3">
+                                        <label for="passwordActual" class="form-label">Contraseña Actual</label>
+                                        <input type="password" class="form-control" id="passwordActual" 
+                                               name="passwordActual" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="passwordNuevo" class="form-label">Nueva Contraseña</label>
+                                        <input type="password" class="form-control" id="passwordNuevo" 
+                                               name="passwordNuevo" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="passwordConfirmar" class="form-label">Confirmar Nueva Contraseña</label>
+                                        <input type="password" class="form-control" id="passwordConfirmar" 
+                                               name="passwordConfirmar" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-key me-2"></i>Actualizar Contraseña
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Eliminar Cuenta -->
+                    <div class="tab-pane fade" id="v-pills-eliminar">
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-trash me-2"></i>Eliminar Cuenta
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{/perfil/eliminar-cuenta}" method="post" id="formEliminarCuenta">
+                                    <div class="mb-3">
+                                        <label for="passwordUsuario" class="form-label">Confirmar contraseña</label>
+                                        <input type="password" class="form-control" id="passwordUsuario"
+                                            name="passwordUsuario" required>
+                                    </div>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarEliminacionModal">
+                                        <i class="fas fa-trash me-2"></i>Eliminar cuenta
+                                    </button>
+                                </form>                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación -->
+        <div class="modal fade" id="confirmarEliminacionModal" tabindex="-1" aria-labelledby="confirmarEliminacionLabel" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmarEliminacionLabel">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" onclick="document.getElementById('formEliminarCuenta').submit();">
+                            Confirmar eliminación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

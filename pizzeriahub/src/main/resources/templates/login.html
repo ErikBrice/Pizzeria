@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Iniciar Sesión | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content" class="my-5">
+        <div class="container">
+            <!-- Alertas de mensajes -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Mensaje de error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Mensaje de éxito</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${warning}">Mensaje de warning</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar sesión
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form th:action="@{/login}" method="post" class="needs-validation" novalidate>
+                                
+                                <!-- Correo electrónico -->
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Correo electrónico</label>
+                                    <input type="email" class="form-control" id="username" name="username" required autofocus>
+                                    <div class="invalid-feedback">
+                                        Por favor ingresa tu correo electrónico.
+                                    </div>
+                                </div>
+                                
+                                <!-- Contraseña -->
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Contraseña</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <div class="invalid-feedback">
+                                        Por favor ingresa tu contraseña.
+                                    </div>
+                                </div>
+                                
+                                <!-- Recordarme -->
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="remember-me" name="remember-me">
+                                    <label class="form-check-label" for="remember-me">Recordarme</label>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-secondary">
+                                        <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="mt-3">
+                                <div class="text-center mb-2">
+                                    <a href="#" class="text-muted">¿Olvidaste tu contraseña?</a>
+                                </div>
+                                <div class="text-center">
+                                    <p class="mb-0">¿No tienes una cuenta? <a th:href="@{/registro}" class="text-muted">Regístrate aquí</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+</body>
+</html>

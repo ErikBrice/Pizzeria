@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/error}"
+      lang="es">
+<head>
+    <title>Error 404 | La Pizzería</title>
+</head>
+<body>
+    <!-- Mensaje para el usuario -->
+    <div layout:fragment="user-message" class="error-user-message">
+        <h1 class="display-1 text-danger mb-4">404</h1>
+        <h2 class="mb-4">Página no encontrada</h2>
+        <p class="lead mb-4">Lo sentimos, no pudimos encontrar la página que estás buscando.</p>
+        <p class="mb-4">La página puede haber sido movida, eliminada, o tal vez ingresaste una dirección incorrecta.</p>
+    </div>
+
+    <!-- Mensaje técnico -->
+    <div layout:fragment="tech-message" class="alert alert-info mb-4 mx-auto" style="max-width: 500px;">
+        <p class="mb-1"><strong>Detalles técnicos:</strong></p>
+        <p class="mb-0" th:text="${error} ?: 'Not Found'">Not Found</p>
+        <p class="mb-0" th:if="${status}" th:text="'Estado HTTP: ' + ${status}">Estado HTTP: 404</p>
+        <p class="mb-0" th:if="${path}" th:text="'Ruta solicitada: ' + ${path}">Ruta solicitada: /pagina-inexistente</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Administración | Pizzart </title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h2 class="border-bottom pb-2"><i class="fas fa-cog"></i> Panel de Administración</h2>
+                    <p class="text-muted">Bienvenido al panel de administración de Pizzart </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-pizza-slice me-2"></i> Gestión de Pizzas</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Administra el catálogo de pizzas, añade nuevas, actualiza precios y stock.</p>
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/admin/pizzas}" class="btn btn-outline-dark">
+                                    <i class="fas fa-list me-1"></i> Ver Todas las Pizzas
+                                </a>
+                                <a th:href="@{/admin/pizzas/nuevo}" class="btn btn-dark">
+                                    <i class="fas fa-plus me-1"></i> Añadir Nueva Pizza
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-utensils me-2"></i> Cocina</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Gestiona los pedidos en preparación, actualiza su estado y controla la producción.</p>
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/cocina}" class="btn btn-primary">
+                                    <i class="fas fa-fire me-1"></i> Ir a Cocina
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-motorcycle me-2"></i> Delivery</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Gestiona las entregas, asigna repartidores y controla el estado de los pedidos.</p>
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/delivery}" class="btn btn-success">
+                                    <i class="fas fa-truck me-1"></i> Ir a Delivery
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i> Gestión de Usuarios</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Administra los usuarios del sistema, crea nuevas cuentas y gestiona sus roles.</p>
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/admin/usuarios}" class="btn btn-outline-info">
+                                    <i class="fas fa-list me-1"></i> Ver Todos los Usuarios
+                                </a>
+                                <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-info text-white">
+                                    <i class="fas fa-user-plus me-1"></i> Añadir Nuevo Usuario
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

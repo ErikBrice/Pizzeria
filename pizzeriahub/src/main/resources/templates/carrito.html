@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Carrito de Compras | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content" class="container my-5">
+        <!-- Alertas de mensajes -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Mensaje de éxito</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Mensaje de error</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4 border-bottom pb-2">Carrito de Compras</h2>
+                
+                <div th:if="${#lists.isEmpty(carrito.items)}" class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Tu carrito está vacío. 
+                    <a th:href="@{/menu}" class="alert-link">¡Agrega algunas pizzas!</a>
+                </div>
+                
+                <div th:unless="${#lists.isEmpty(carrito.items)}" class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Subtotal</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${carrito.items}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img th:src="${item.pizza.imagenUrl != null ? item.pizza.imagenUrl : 'https://via.placeholder.com/50x50?text=Pizza'}" 
+                                                     alt="Pizza" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <span th:text="${item.pizza.nombrePizza}">Nombre de la Pizza</span>
+                                            </div>
+                                        </td>
+                                        <td>S/ <span th:text="${item.pizza.precioUnd}">0.00</span></td>
+                                        <td>
+                                            <form th:action="@{/carrito/actualizar}" method="post" class="d-flex align-items-center">
+                                                <input type="hidden" name="pizzaId" th:value="${item.pizza.idPizza}">
+                                                <input type="number" name="cantidad" th:value="${item.cantidad}" min="1" max="10" class="form-control form-control-sm" style="width: 70px;">
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-secondary ms-2"
+                                                        data-toggle="tooltip" data-placement="bottom" title="Calcular subtotal">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td>S/ <span th:text="${item.subtotal}">0.00</span></td>
+                                        <td>
+                                            <a class="btn btn-sm btn-outline-secondary"
+                                               data-toggle="tooltip" data-placement="bottom" title="Eliminar del carrito"
+                                               th:href="@{/carrito/eliminar/{id}(id=${item.pizza.idPizza})}">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td class="fw-bold">S/ <span th:text="${carrito.total}">0.00</span></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <div class="d-md-flex justify-content-between mt-3 align-items-center flex-wrap gap-2">
+                            <a th:href="@{/menu}" class="btn btn-outline-secondary w-100 w-md-auto mb-2 mb-md-0">
+                                <i class="fas fa-arrow-left me-1"></i> Seguir Comprando
+                            </a>
+                            <div class="d-grid w-100 w-md-auto gap-2 d-md-flex">
+                                <a th:href="@{/carrito/limpiar}" class="btn btn-outline-secondary w-100 w-md-auto">
+                                    <i class="fas fa-trash me-1"></i> Vaciar Carrito
+                                </a>
+                                <a th:href="@{/checkout}" class="btn btn-warning w-100 w-md-auto">
+                                    <i class="fas fa-shopping-bag me-1"></i> Proceder al Pago
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

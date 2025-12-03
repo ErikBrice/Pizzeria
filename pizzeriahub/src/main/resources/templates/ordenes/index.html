@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Mis Pedidos | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <!-- Alertas -->
+            <div th:if="${success != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Operación exitosa</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <h2 class="mb-4 border-bottom pb-2">Mis Órdenes</h2>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-pizza-slice me-2"></i> Listado de Órdenes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(ordenes)}" class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i> No tienes órdenes realizadas.
+                                <a th:href="@{/menu}" class="alert-link">¡Ordena ahora!</a>
+                            </div>
+
+                            <div th:unless="${#lists.isEmpty(ordenes)}" class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>N° Orden</th>
+                                            <th>Fecha</th>
+                                            <th>Total</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="orden : ${ordenes}" th:data-orden-id="${orden.idOrden}">
+                                            <td>
+                                                <span th:text="${orden.nroPedido}" class="fw-bold">PZC-00000001</span>
+                                                <small class="text-muted d-block">ID: <span th:text="${orden.idOrden}">1</span></small>
+                                            </td>
+                                            <td th:text="${#temporals.format(orden.fechaHora, 'dd-MM-yyyy HH:mm')}">01-01-2023 00:00</td>
+                                            <td>S/ <span th:text="${orden.totalPago.add(orden.costoEnvio)}">0.00</span></td>
+                                            <td>
+                                                <span th:switch="${orden.estado}">
+                                                    <span th:case="'Orden recibida'" class="badge bg-info text-dark">
+                                                        <i class="fas fa-clock me-1"></i> Orden recibida
+                                                    </span>
+                                                    <span th:case="'En preparación'" class="badge bg-primary">
+                                                        <i class="fas fa-fire me-1"></i> En preparación
+                                                    </span>
+                                                    <span th:case="'Preparado'" class="badge bg-warning text-dark">
+                                                        <i class="fas fa-check-circle me-1"></i> Preparado
+                                                    </span>
+                                                    <span th:case="'En entrega'" class="badge bg-info">
+                                                        <i class="fas fa-truck me-1"></i> En entrega
+                                                    </span>
+                                                    <span th:case="'Entregado'" class="badge bg-success">
+                                                        <i class="fas fa-check-double me-1"></i> Entregado
+                                                    </span>
+                                                    <span th:case="'Cancelado'" class="badge bg-danger">
+                                                        <i class="fas fa-times me-1"></i> Cancelado
+                                                    </span>
+                                                    <span th:case="*" class="badge bg-secondary">
+                                                        <i class="fas fa-question-circle me-1"></i> Desconocido
+                                                    </span>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="btn-group">
+                                                        <div class="me-1">
+                                                            <a th:href="@{/ordenes/{id}(id=${orden.idOrden})}" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-eye me-1"></i> Ver detalle
+                                                            </a>
+                                                        </div>
+                                                        <button th:if="${orden.estado == 'Orden recibida'}"
+                                                                class="btn btn-sm btn-outline-danger btn-cancel-item"
+                                                                data-bs-toggle="modal" th:data-bs-target="'#cancelarModal' + ${orden.idOrden}">
+                                                            <i class="fas fa-times me-1"></i> Cancelar
+                                                        </button>
+
+                                                        <!-- Modal de confirmación de cancelación -->
+                                                        <div class="modal fade" th:id="'cancelarModal' + ${orden.idOrden}" tabindex="-1">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Confirmar cancelación</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        ¿Estás seguro de que deseas cancelar la orden #<span th:text="${orden.nroPedido}"></span>?
+                                                                        Esta acción no se puede deshacer.
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                                        <form th:action="@{/ordenes/{id}/cancelar(id=${orden.idOrden})}" method="post">
+                                                                            <button type="submit" class="btn btn-danger">Confirmar cancelación</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

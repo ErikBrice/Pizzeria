@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/error}"
+      lang="es">
+<head>
+    <title>Error 403 | La Pizzería</title>
+</head>
+<body>
+    <!-- Mensaje para el usuario -->
+    <div layout:fragment="user-message" class="error-user-message">
+        <h1 class="display-1 text-danger mb-4">403</h1>
+        <h2 class="mb-4">Acceso denegado</h2>
+        <p class="lead mb-4">No tienes permiso para acceder a esta página.</p>
+        <p class="mb-4">Por favor, verifica tus credenciales o contacta al administrador si crees que esto es un error.</p>
+    </div>
+
+    <!-- Mensaje técnico -->
+    <div layout:fragment="tech-message" class="alert alert-info mb-4 mx-auto" style="max-width: 500px;">
+        <p class="mb-1"><strong>Detalles técnicos:</strong></p>
+        <p class="mb-0" th:text="${error} ?: 'Forbidden'">Forbidden</p>
+        <p class="mb-0" th:if="${status}" th:text="'Estado HTTP: ' + ${status}">Estado HTTP: 403</p>
+        <p class="mb-0" th:if="${path}" th:text="'Ruta solicitada: ' + ${path}">Ruta solicitada: /acceso-denegado</p>
+    </div>
+
+</body>
+</html>

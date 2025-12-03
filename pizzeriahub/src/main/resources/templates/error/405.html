@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/error}"
+      lang="es">
+<head>
+    <title>Error 405 | La Pizzería</title>
+</head>
+<body>
+    <!-- Mensaje para el usuario -->
+    <div layout:fragment="user-message" class="error-user-message">
+        <h1 class="display-1 text-danger mb-4">405</h1>
+        <h2 class="mb-4">Método no permitido</h2>
+        <p class="lead mb-4">Lo sentimos, el método utilizado para acceder a esta página no está permitido.</p>
+        <p class="mb-4">El método que intentaste usar no es compatible con esta URL.</p>
+    </div>
+
+    <!-- Mensaje técnico -->
+    <div layout:fragment="tech-message" class="alert alert-info mb-4 mx-auto" style="max-width: 500px;">
+        <p class="mb-1"><strong>Detalles técnicos:</strong></p>
+        <p class="mb-0" th:text="${error} ?: 'Method Not Allowed'">Method Not Allowed</p>
+        <p class="mb-0" th:if="${status}" th:text="'Estado HTTP: ' + ${status}">Estado HTTP: 405</p>
+        <p class="mb-0" th:if="${path}" th:text="'Ruta solicitada: ' + ${path}">Ruta solicitada: /login</p>
+    </div>
+
+</body>
+</html>

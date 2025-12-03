@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Checkout | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content" class="container my-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Checkout</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Datos de Contacto</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <p><strong>Nombre:</strong> <span th:text="${usuario.nombreCompleto}">Nombre cliente</span></p>
+                                <p><strong>Email:</strong> <span th:text="${usuario.correo}">correo@ejemplo.com</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Teléfono:</strong> <span th:text="${usuario.telefono}">123456789</span></p>
+                                <p><strong>Dirección:</strong> <span th:text="${usuario.direccion}">Dirección del cliente</span></p>
+                            </div>
+                        </div>
+
+                        <h5 class="card-title">Resumen de la Orden</h5>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${carrito.items}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img th:src="${item.pizza.imagenUrl != null ? item.pizza.imagenUrl : 'https://via.placeholder.com/50x50?text=Pizza'}" 
+                                                     alt="Pizza" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <span th:text="${item.pizza.nombrePizza}">Nombre de la Pizza</span>
+                                            </div>
+                                        </td>
+                                        <td>S/ <span th:text="${item.pizza.precioUnd}">0.00</span></td>
+                                        <td><span th:text="${item.cantidad}">1</span></td>
+                                        <td class="text-end">S/ <span th:text="${item.subtotal}">0.00</span></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td colspan="3" class="text-end">Subtotal:</td>
+                                        <td class="text-end">S/ <span th:text="${carrito.total}">0.00</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end">Costo de envío:</td>
+                                        <td class="text-end">S/ <span th:text="${costoEnvio}">0.00</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td class="text-end fw-bold">S/ <span th:text="${carrito.total.add(costoEnvio)}">0.00</span></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <form id="checkoutForm" th:action="@{/checkout/procesar}" method="post" class="needs-validation" novalidate>
+                            <h5 class="card-title">Método de Pago</h5>
+                            <div class="mb-4">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="metodoPago" id="efectivo" value="Efectivo" checked>
+                                    <label class="form-check-label" for="efectivo">
+                                        <i class="fas fa-money-bill-wave me-2"></i> Efectivo
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="metodoPago" id="tarjeta" value="Tarjeta">
+                                    <label class="form-check-label" for="tarjeta">
+                                        <i class="fas fa-credit-card me-2"></i> Tarjeta de Crédito/Débito
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="metodoPago" id="yape" value="Yape">
+                                    <label class="form-check-label" for="yape">
+                                        <i class="fas fa-mobile-alt me-2"></i> Yape/Plin
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="fas fa-check-circle me-2"></i> Confirmar Orden
+                                </button>
+                                <a th:href="@{/carrito}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i> Volver al Carrito
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Información de Entrega</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><i class="fas fa-map-marker-alt me-2"></i> <strong>Dirección de entrega:</strong></p>
+                        <p class="ms-4"><span th:text="${usuario.direccion}">Calle Principal #123, Lima</span></p>
+                        
+                        <p><i class="fas fa-clock me-2"></i> <strong>Tiempo estimado de entrega:</strong></p>
+                        <p class="ms-4">30-45 minutos</p>
+                        
+                        <p><i class="fas fa-info-circle me-2"></i> <strong>Información adicional:</strong></p>
+                        <ul class="ms-4">
+                            <li>Entrega a domicilio disponible</li>
+                            <li>Horario de entrega: 11:00 AM - 10:00 PM</li>
+                            <li>Contacto para consultas: +51 999 998 888</li>
+                        </ul>
+                        
+                        <div class="alert alert-info alert-permanent">
+                            <i class="fas fa-exclamation-circle me-2"></i> Para cambiar la dirección de entrega, por favor actualice su perfil.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Delivery | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <!-- Alertas -->
+            <div th:if="${success != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${success}">Operación exitosa</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-1"></i> <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="border-bottom pb-2"><i class="fas fa-motorcycle"></i> Gestión de Entregas</h2>
+                    <p class="text-muted">Administra y controla las entregas de órdenes a los clientes.</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="mb-0">Pedidos para Entrega</h5>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-danger" th:text="'P: ' + ${ordenes.?[estado == 'Preparado'].size()}">3</span>
+                        <span class="badge bg-warning text-dark" th:text="'EE: ' + ${ordenes.?[estado == 'En entrega'].size()}">2</span>
+                        <span class="badge bg-light text-dark" th:text="'Total: ' + ${ordenes.size() + ' órdenes'}">0 órdenes</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(ordenes)}" class="text-center p-4">
+                        <i class="fas fa-truck-loading fa-3x text-muted mb-3"></i>
+                        <p>No hay pedidos pendientes para entrega en este momento.</p>
+                    </div>
+                    <div th:unless="${#lists.isEmpty(ordenes)}" class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Dirección</th>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Motorizado</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="orden : ${ordenes}" th:data-orden-id="${orden.nroPedido}">
+                                    <td th:text="${orden.nroPedido}">1</td>
+                                    <td>
+                                        <div>
+                                            <span th:text="${orden.usuario.nombre + ' ' + orden.usuario.apellido}">Juan Pérez</span>
+                                            <small class="d-block text-muted" th:text="${orden.usuario.telefono}">987654321</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span th:text="${orden.usuario.direccion}">Av. Principal 123 Miraflores</span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${#temporals.format(orden.fechaHora, 'dd-MM-yyyy HH:mm')}">01-01-2023 12:30</td>
+                                    <td>S/ <span th:text="${orden.totalPago.add(orden.costoEnvio)}">0.00</span></td>
+                                    <td>
+                                        <!-- Si el usuario NO es MOTORIZADO, muestra el dropdown -->
+                                        <div sec:authorize="!hasRole('MOTORIZADO')">
+                                            <form th:action="@{/delivery/asignar-motorizado}" method="post">
+                                                <input type="hidden" name="idOrden" th:value="${orden.idOrden}" />
+                                                <select name="idMotorizado"
+                                                        class="form-select form-select-sm d-inline w-auto"
+                                                        onchange="this.form.submit()">
+                                                    <option th:value="-1" th:selected="${orden.motorizado == null}">Sin asignar</option>
+                                                    <option th:each="motorizado : ${motorizados}"
+                                                            th:value="${motorizado.idUsuario}"
+                                                            th:text="${motorizado.nombreCompleto}"
+                                                            th:selected="${orden.motorizado?.idUsuario == motorizado.idUsuario}">
+                                                    </option>
+                                                </select>
+                                            </form>
+                                        </div>
+
+                                        <!-- Si el usuario es MOTORIZADO, solo muestra el nombre -->
+                                        <span sec:authorize="hasRole('MOTORIZADO')"
+                                              th:text="${orden.motorizado?.nombreCompleto} ?: 'Sin asignar'"
+                                              th:classappend="${orden.motorizado == null} ? 'text-danger' : 'text-success'">Motorizado
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${
+                                            orden.estado == 'Preparado' ? 'bg-danger text-white' :
+                                            (orden.estado == 'En entrega' ? 'bg-warning text-dark' :
+                                            (orden.estado == 'Entregado' ? 'bg-success' : 'bg-secondary'))
+                                        }" th:text="${orden.estado}">Estado</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/delivery/{id}(id=${orden.idOrden})}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Edición de Productos | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h2 class="border-bottom pb-2" th:text="${pizza.idPizza == null ? 'Nueva Pizza' : 'Editar Pizza'}">Pizza</h2>
+                            <p class="lead mb-0">Formulario para editar o agregar nuevos productos.</p>
+                        </div>
+                        <a th:href="@{/admin/pizzas}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver al Listado
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-pizza-slice me-2"></i> Edición de Productos Pizza</h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/pizzas/guardar}" th:object="${pizza}" method="post">
+                                <input type="hidden" th:field="*{idPizza}">
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nombrePizza" class="form-label">Nombre de la Pizza</label>
+                                        <input type="text" class="form-control" id="nombrePizza" th:field="*{nombrePizza}" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombrePizza')}" th:errors="*{nombrePizza}"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="precioUnd" class="form-label">Precio (S/)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">S/</span>
+                                            <input type="number" class="form-control" id="precioUnd" th:field="*{precioUnd}" step="0.01" min="0" required>
+                                        </div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('precioUnd')}" th:errors="*{precioUnd}"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="descripcion" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="stock" class="form-label">Stock</label>
+                                        <input type="number" class="form-control" id="stock" th:field="*{stock}" min="0" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="imagenUrl" class="form-label">URL de la Imagen</label>
+                                        <input type="url" class="form-control" id="imagenUrl" th:field="*{imagenUrl}" placeholder="https://ejemplo.com/imagen.jpg">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('imagenUrl')}" th:errors="*{imagenUrl}"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3" th:if="*{imagenUrl != null && !imagenUrl.isEmpty()}">
+                                    <label class="form-label">Vista previa de la imagen</label>
+                                    <div>
+                                        <img th:src="*{imagenUrl}" alt="Vista previa" class="img-thumbnail" style="max-width: 150px;">
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-1"></i> Guardar Pizza
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

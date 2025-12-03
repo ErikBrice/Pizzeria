@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="es">
+<head>
+    <title>Edición de Usuarios | La Pizzería</title>
+</head>
+<body>
+    <!-- Contenido Principal -->
+    <main layout:fragment="content">
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h2 class="border-bottom pb-2" th:text="${usuario.idUsuario == null ? 'Nuevo Usuario' : 'Editar Usuario'}">Usuario</h2>
+                            <p class="lead mb-0">Formulario para editar o agregar nuevos usuarios.</p>
+                        </div>
+                        <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver al Listado
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i> Edición de Usuarios</h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/usuarios/guardar}" th:object="${usuario}" method="post">
+                                <input type="hidden" th:field="*{idUsuario}">
+
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" th:field="*{nombre}" required>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese el nombre.
+                                    </div>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="apellido" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="apellido" name="apellido" th:field="*{apellido}" required>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese el apellido.
+                                    </div>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="correo" class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correo" name="correo" th:field="*{correo}" required>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese un correo electrónico válido.
+                                    </div>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="tel"
+                                           class="form-control"
+                                           id="telefono"
+                                           name="telefono"
+                                           pattern="[0-9]{7,9}"
+                                           maxlength="9"
+                                           th:field="*{telefono}" required>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese un número de teléfono válido.
+                                    </div>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="direccion" class="form-label">Dirección</label>
+                                    <textarea class="form-control" id="direccion" name="direccion" th:field="*{direccion}" rows="3" required></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="idRol" class="form-label">Rol</label>
+                                    <select class="form-select" id="idRol" name="idRol" th:field="*{idRol}" required>
+                                        <option value="" disabled
+                                                th:if="${usuario.idRol == null}"
+                                                selected>
+                                            Seleccione un rol
+                                        </option>
+                                        <option th:each="rol : ${roles}"
+                                                th:value="${rol.idRol}"
+                                                th:text="${rol.nombreRol}"
+                                                th:selected="${rol.idRol == usuario.idRol}">
+                                        </option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Debe seleccionar un rol válido.
+                                    </div>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('idRol')}" th:errors="*{idRol}"></div>
+                                </div>
+
+                                <div class="mb-3" th:if="${usuario.idUsuario == null}">
+                                    <label for="pwdUsuario" class="form-label">Contraseña</label>
+                                    <input type="password" class="form-control" id="pwdUsuario" name="pwdUsuario" th:field="*{pwdUsuario}" required>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-1"></i> Guardar Usuario
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
